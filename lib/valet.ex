@@ -66,7 +66,7 @@ defmodule Valet do
     schema = opts[:schema]
     true = is_integer(min_len) or is_nil(min_len)
     true = is_integer(max_len) or is_nil(max_len)
-    true = is_nil(schema) or is_function(schema, 2)
+
     %Valet.List{min_len: min_len, max_len: max_len, schema: schema}
   end
 

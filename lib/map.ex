@@ -7,7 +7,7 @@ import ProtocolEx
 alias Valet.Schema
 
 defimpl_ex ValetMap, %Valet.Map{}, for: Schema do
-  def validate(_, v, path) when not(is_map(v)), do: Valet.error(path, v, :map)
+  def validate(_, v, path) when not(is_map(v)), do: [Valet.error(path, v, :map)]
   def validate(%Valet.Map{key_schema: ks, val_schema: vs, min_len: min, max_len: max}, v, path) do
     r1 = case {min, max} do
       {nil, nil} -> []

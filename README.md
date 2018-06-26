@@ -6,6 +6,14 @@ Simple validation, great diagnostics
 
 So brand new it hurts.
 
+## Usage
+
+```elixir
+
+def schema() do
+
+```
+
 ## Installation
 
 Not yet available in hex.
