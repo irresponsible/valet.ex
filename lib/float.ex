@@ -7,19 +7,17 @@ import ProtocolEx
 alias Valet.Schema
 
 defimpl_ex ValetFloat, %Valet.Float{}, for: Schema do
-  def validate(s,v, path) do
-    min = s[:min]
-    max = s[:max]
+  def validate(_, v, path) when not is_float(v), do: [Valet.error(path, v, :float)]
+  def validate(%Valet.Float{min: min, max: max}, v, path) do
     cond do
-      !is_number(v) -> [{Enum.reverse(path), v, :float}]
       is_nil(min) && is_nil(max) -> []
       is_number(min) && is_nil(max) ->
-        if v >= min, do: [], else: [{Enum.reverse(path), v, {:every, [:float, {:gte, min}]}}]
+        if v >= min, do: [], else: [Valet.error(path, v, {:gte, min})]
       is_nil(min) && is_number(max) -> []
-        if v <= max, do: [], else: [{Enum.reverse(path), v, {:every, [:float, {:lte, max}]}}]
+        if v <= max, do: [], else: [Valet.error(path, v, {:lte, max})]
       is_number(min) && is_number(max) ->
         if v >= min and v <= max, do: [],
-          else: [{Enum.reverse(path), v, {:every, [:float, {:between, {min, max}}]}}]
+          else: [Valet.error(path, v, {:between, {min, max}})]
     end
   end
 end

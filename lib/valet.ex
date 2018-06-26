@@ -98,4 +98,9 @@ defmodule Valet do
     %Valet.Branch{branches: branches}
   end
 
+  @doc """
+  """
+  def error(path, value, reason),
+    do: %Valet.Error{path: path, value: value, reason: reason}
+
 end

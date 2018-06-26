@@ -7,7 +7,7 @@ import ProtocolEx
 alias Valet.Schema
 
 defimpl_ex ValetTuple, %Valet.Tuple{}, for: Schema do
-  def validate(s,v, path) when not is_tuple(v), do: [{Enum.reverse(path), v,{:tuple, tuple_size(s.schemata)}}]
+  def validate(_, v, path) when not is_tuple(v), do: [Valet.error(path, v, :tuple)]
   def validate(%Valet.Tuple{schemata: schemata}, v, path) do
     case {schemata, v} do
       {{s1, s2},{v1, v2}} ->
@@ -53,7 +53,7 @@ defimpl_ex ValetTuple, %Valet.Tuple{}, for: Schema do
         ++ Schema.validate(s7, v7, [ 6 | path])
         ++ Schema.validate(s8, v8, [ 7 | path])
       # TODO: any size where they're even
-      _ -> [{Enum.reverse(path), v, {:every, [:tuple, {:length, tuple_size(schemata)}]}}]
+      _ -> [Valet.error(path, v, {:len, tuple_size(schemata)})]
     end
   end
 end

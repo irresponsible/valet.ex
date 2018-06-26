@@ -7,23 +7,20 @@ import ProtocolEx
 alias Valet.Schema
 
 defimpl_ex ValetList, %Valet.List{}, for: Schema do
-  def validate(_,v, path) when not(is_list(v)), do: [{path, v, :expected_list}]
-  def validate(s,v, path) when is_list(v) do
-    lower = s.min_len
-    upper = s.max_len
-    schema = s.schema
+  def validate(_,v, path) when not(is_list(v)), do: [Valet.error(path, v, :list)]
+  def validate(%Valet.List{min_len: min, max_len: max, schema: schema}, v, path) when is_list(v) do
     r1 = cond do
-      is_nil(lower) && is_nil(upper) -> []
-      is_integer(lower) && is_nil(upper) ->
-        if byte_size(v) >= lower, do: [],
-          else: [{Enum.reverse(path), v, {:every, [:list, {:len_gte, lower}]}}]
-      is_nil(lower) && is_integer(upper) ->
-        if byte_size(v) <= upper, do: [],
-          else: [{Enum.reverse(path), v, {:every, [:list, {:len_lte, upper}]}}]
-      is_integer(lower) && is_integer(upper) ->
+      is_nil(min) && is_nil(max) -> []
+      is_integer(min) && is_nil(max) ->
+        if byte_size(v) >= min, do: [],
+          else: [Valet.error(path, v, {:len_gte, min})]
+      is_nil(min) && is_integer(max) ->
+        if byte_size(v) <= max, do: [],
+          else: [Valet.error(path, v, {:len_lte, max})]
+      is_integer(min) && is_integer(max) ->
         len = byte_size(v)
-        if len >= lower and len <= upper, do: [],
-          else: [{Enum.reverse(path), v, {:every, [:list, {:len_between, {lower, upper}}]}}]
+        if len >= min and len <= max, do: [],
+          else: [Valet.error(path, v, {:len_between, {min, max}})]
     end
     r2 = case schema do
       nil -> []
