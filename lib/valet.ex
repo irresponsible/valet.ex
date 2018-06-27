@@ -17,7 +17,7 @@ defmodule Valet do
 
   @doc """
   """
-  def float(opts) do
+  def float(opts \\ []) do
     min = opts[:min]
     max = opts[:max]
     true = is_number(min) or is_nil(min)
@@ -27,7 +27,7 @@ defmodule Valet do
 
   @doc """
   """
-  def binary(opts) do
+  def binary(opts \\ []) do
     min_len = opts[:min_len]
     max_len = opts[:max_len]
     regex = opts[:regex]
@@ -39,7 +39,7 @@ defmodule Valet do
 
   @doc """
   """
-  def string(opts) do
+  def string(opts \\ []) do
     min_len = opts[:min_len]
     max_len = opts[:max_len]
     regex = opts[:regex]
@@ -51,7 +51,7 @@ defmodule Valet do
   
   @doc """
   """
-  def tuple(opts) do
+  def tuple(opts \\ []) do
     schemata = opts[:schemata]
     true = is_nil(schemata) or
       (is_tuple(schemata) and Enum.all?(Tuple.to_list(schemata), &is_function(&1, 2)))
@@ -60,7 +60,7 @@ defmodule Valet do
 
   @doc """
   """
-  def list(opts) do
+  def list(opts \\ []) do
     min_len = opts[:min_len]
     max_len = opts[:max_len]
     schema = opts[:schema]
@@ -72,7 +72,7 @@ defmodule Valet do
 
   @doc """
   """
-  def map(opts) do
+  def map(opts \\ []) do
     min_len = opts[:min_len]
     max_len = opts[:max_len]
     key_schema = opts[:key_schema]
