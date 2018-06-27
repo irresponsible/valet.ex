@@ -5,7 +5,7 @@ defmodule Valet do
   end
   
   @doc """
-  
+
   """
   def integer(opts \\ []) when is_list(opts) do
     min = opts[:min]
@@ -82,6 +82,17 @@ defmodule Valet do
     true = is_nil(key_schema) or is_function(key_schema, 2)
     true = is_nil(val_schema) or is_function(val_schema, 2)
     %Valet.Map{min_len: min_len, max_len: max_len, key_schema: key_schema, val_schema: val_schema}
+  end
+
+  @doc """
+  """
+  # TODO: What better validation can we do here? that keys are simple?
+  def struct(opts) do
+    required = opts[:required]
+    optional = opts[:optional]
+    true = is_nil(required) or is_map(required) or is_list(required)
+    true = is_nil(optional) or is_map(optional) or is_list(optional)
+    %Valet.Struct{required: required, optional: optional}
   end
 
   @doc """
