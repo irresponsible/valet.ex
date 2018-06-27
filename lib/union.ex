@@ -1,22 +1,22 @@
-defmodule Valet.Branch do
+defmodule Valet.Union do
   @enforce_keys [:branches]
   defstruct @enforce_keys
 
-  alias Valet.Branch
+  alias Valet.Union
 
   @doc """
   Picks the first branch for which there are no validation errors
   """
-  def pick(%Branch{branches: branches}, data),
-    do: Enum.find(branches, fn {k, s} -> [] == Schema.validate(s, data) end)
+  def pick(%Union{branches: branches}, data),
+    do: Enum.find(branches, fn {_, s} -> [] === Schema.validate(s, data) end)
 
 end
 
 import ProtocolEx
 alias Valet.Schema
-alias Valet.Branch
+alias Valet.Union
 
-defimpl_ex ValetBranch, %Branch{}, for: Schema do
+defimpl_ex ValetUnion, %Union{}, for: Schema do
   def validate(s, v, path) do
     Enum.reduce_while(s.branches, [], fn {k, s}, acc ->
       case Schema.validate(s, v, [k | path]) do

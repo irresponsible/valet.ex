@@ -104,9 +104,9 @@ defmodule Valet do
 
   @doc """
   """
-  def branch(branches) do
-    true = Enum.all?(branches, fn {k,_} when is_atom(k) -> true end)
-    %Valet.Branch{branches: branches}
+  def choice(choices) do
+    true = Enum.all?(choices, fn {k,_} when is_atom(k) -> true end)
+    %Valet.Choice{choices: choices}
   end
 
   @doc """
