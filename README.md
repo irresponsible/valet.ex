@@ -9,8 +9,17 @@ So brand new it hurts.
 ## Usage
 
 ```elixir
+alias Valet.Schema
 
-def schema() do
+def string_int_map() do
+  Valet.map(key_schema: Valet.string(), val_schema: Valet.integer())
+end
+
+def main() do
+  [] = Schema.validate(string_int_map(), %{"a" => 1}) # no errors
+  for e <- Schema.validate(string_int_map(), %{1 => "a"}), # two errors
+    do: IO.inspect(e)
+end
 
 ```
 
