@@ -31,6 +31,7 @@ defmodule Valet.MixProject do
   defp deps do
     [
       {:protocol_ex, "~> 0.3.0"},
+      {:polylens, path: "../polylens"},
       {:dbg, "~> 1.0", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:stream_data, "~> 0.4", only: [:dev, :test]},

@@ -1,22 +1,46 @@
 defmodule Valet.Struct do
-  @enforce_keys [:required, :optional]
+  @enforce_keys [:required, :optional, :extra]
   defstruct @enforce_keys
 end
 
 import ProtocolEx
 alias Valet.Schema
+alias Polylens.Lenses
+alias Valet.Error.{KeyIsMissing, KeysUnknown, TypeMismatch}
 
 defimpl_ex ValetStruct, %Valet.Struct{}, for: Schema do
-  def validate(_, v, path) when not(is_map(v)), do: [Valet.error(path, v, :map)]
-  def validate(%Valet.Struct{required: required, optional: optional}, v, path) do
-    Enum.flat_map(required, fn {k, s} ->
-      if Map.has_key?(v, k),
-        do: Schema.validate(s, v[k], [1, k | path]),
-        else: [Valet.error([0, k | path], k, :missing)]
-    end) ++ Enum.flat_map(optional, fn {k, s} ->
-      if Map.has_key?(v, k),
-        do: Schema.validate(s, v[k], [1, k | path]),
+  def validate(_, val, trail) when not(is_map(val)), do: [TypeMismatch.new(trail, val, :map)]
+  def validate(%Valet.Struct{required: required, optional: optional, extra: extra}, val, trail) do
+    required(required, val, trail) ++
+    optional(optional, val, trail) ++
+    extra(required, optional, extra, val, trail)
+  end
+
+  defp extra(required, optional, extra, val, trail)
+  defp extra(_, _, true, _, _), do: []
+  defp extra(required, optional, _, val, trail) do
+    known = MapSet.new(required ++ optional, &Map.keys/1)
+    provided = MapSet.new(Map.keys(val))
+    unknown = MapSet.difference(provided, known)
+    if Enum.empty?(unknown),
+      do: [],
+      else: [KeysUnknown.new(trail, val, MapSet.to_list(unknown), MapSet.to_list(known))]
+  end
+
+  defp required(required, val, trail) do
+    Enum.flat_map(required, fn {key, s} ->
+      if Map.has_key?(val, key),
+        do: Schema.validate(s, val[key], [Lenses.at_key(key) | trail]),
+        else: [KeyIsMissing.new([Lenses.key_at(key) | trail], val, key, s)]
+    end)
+  end
+
+  defp optional(optional, val, trail) do
+    Enum.flat_map(optional, fn {key, s} ->
+      if Map.has_key?(val, key),
+        do: Schema.validate(s, val[key], [Lenses.at_key(key) | trail]),
         else: []
     end)
   end
+
 end

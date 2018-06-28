@@ -17,9 +17,9 @@ alias Valet.Schema
 alias Valet.Union
 
 defimpl_ex ValetUnion, %Union{}, for: Schema do
-  def validate(s, v, path) do
+  def validate(s, v, trail) do
     Enum.reduce_while(s.branches, [], fn {k, s}, acc ->
-      case Schema.validate(s, v, [k | path]) do
+      case Schema.validate(s, v, [k | trail]) do
         [] -> {:halt, []}
         fail -> {:cont, fail ++ acc}
       end

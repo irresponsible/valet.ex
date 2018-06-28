@@ -5,19 +5,34 @@ end
 
 import ProtocolEx
 alias Valet.Schema
+alias Valet.Error.{TypeMismatch, NotAtLeast, NotAtMost, NotBetween}
 
 defimpl_ex ValetNumber, %Valet.Number{}, for: Schema do
-  def validate(_, v, path) when not is_number(v), do: [Valet.error(path, v, :number)]
-  def validate(%Valet.Number{min: min, max: max}, v, path) do
-    cond do
-      is_nil(min) && is_nil(max) -> []
-      is_number(min) && is_nil(max) -> 
-        if v >= min, do: [], else: [Valet.error(path, v, {:gte, min})]
-      is_nil(min) && is_number(max) -> []
-        if v <= max, do: [], else: [Valet.error(path, v, {:lte, max})]
-      is_number(min) && is_number(max) ->
-        if v >= min and v <= max, do: [],
-          else: [Valet.error(path, v, {:between, {min, max}})]
-    end
+  def validate(_, val, trail) when not is_number(val), do: [TypeMismatch.new(trail, val, :number)]
+  def validate(%Valet.Number{min: min, max: max}, val, trail), do: sizes(min, max, val, trail)
+
+  defp sizes(nil, nil, _, _), do: []
+  defp sizes(min, nil, val, trail) when is_number(min), do: at_least(min, val, trail)
+  defp sizes(nil, max, val, trail) when is_number(max), do: at_most(max, val, trail)
+  defp sizes(min, max, val, trail) when is_number(min) and is_number(max), do: between(min, max, val, trail)
+
+  defp at_least(min, val, trail) do
+    if val >= min,
+      do: [],
+      else: [ NotAtLeast.new(trail, val, min) ]
   end
+
+  defp at_most(max, val, trail) do
+    if val <= max,
+      do: [],
+      else: [ NotAtMost.new(trail, val, max) ]
+  end
+
+  defp between(min, max, val, trail) do
+    if val >= min && val <= max,
+      do: [],
+      else: [ NotBetween.new(trail, val, min, max) ]
+  end
+
 end
+

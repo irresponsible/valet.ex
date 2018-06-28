@@ -1,9 +1,9 @@
 defmodule Valet do
   import ProtocolEx
   defprotocol_ex Schema do
-    def validate(schema, value, path \\ [])
+    def validate(schema, value, trail \\ [])
   end
-  
+
   @doc """
 
   """
@@ -90,9 +90,11 @@ defmodule Valet do
   def struct(opts) do
     required = opts[:required]
     optional = opts[:optional]
+    extra = Map.get(opts, :extra, true)
     true = is_nil(required) or is_map(required) or is_list(required)
     true = is_nil(optional) or is_map(optional) or is_list(optional)
-    %Valet.Struct{required: required, optional: optional}
+    true = is_boolean(extra)
+    %Valet.Struct{required: required, optional: optional, extra: extra}
   end
 
   @doc """
@@ -109,9 +111,5 @@ defmodule Valet do
     %Valet.Choice{choices: choices}
   end
 
-  @doc """
-  """
-  def error(path, value, reason),
-    do: %Valet.Error{path: path, value: value, reason: reason}
-
 end
+
