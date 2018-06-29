@@ -19,6 +19,7 @@ defimpl_ex ValetList, %Valet.List{}, for: Schema do
   defp sizes(nil, max, val, trail) when is_integer(max), do: at_most(max, val, trail)
   defp sizes(min, max, val, trail) when is_integer(min) and is_integer(max), do: between(min, max, val, trail)
 
+  defp schema(nil, _, _), do: []
   defp schema(schema, val, trail) do
     Enum.with_index(val)
     |> Enum.flat_map(fn {v,i} -> Schema.validate(schema, v, [Lenses.at_index(i) | trail]) end)

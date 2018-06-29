@@ -4,6 +4,8 @@ defmodule Valet do
     def validate(schema, value, trail \\ [])
   end
 
+  ## TODO: validate no unknown options were provided
+
   @doc """
 
   """
@@ -25,6 +27,17 @@ defmodule Valet do
     %Valet.Float{min: min, max: max}
   end
 
+  @doc """
+  """
+  def number(opts \\ []) do
+    min = opts[:min]
+    max = opts[:max]
+    true = is_number(min) or is_nil(min)
+    true = is_number(max) or is_nil(max)
+    %Valet.Number{min: min, max: max}
+  end
+
+  
   @doc """
   """
   def binary(opts \\ []) do
