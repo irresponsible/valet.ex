@@ -1,5 +1,5 @@
 defmodule Valet.Binary do
-  @enforce_keys [:min_len, :max_len, :regex]
+  @enforce_keys [:min_len, :max_len, :regex, :pre, :post]
   defstruct @enforce_keys
 end
 
@@ -9,11 +9,13 @@ alias Polylens.Lenses
 alias Valet.Error.{TypeMismatch, RegexDoesNotMatch, LengthNotAtLeast, LengthNotAtMost, LengthNotBetween}
 
 defimpl_ex ValetBinary, %Valet.Binary{}, for: Schema do
-  def validate(_, val, trail) when not is_binary(val), do: [TypeMismatch.new(trail, val, :binary)]
-  def validate(%Valet.Binary{min_len: min, max_len: max, regex: regex}, val, trail) do
-    sizes(min, max, val, trail) ++ regex(regex, val, trail)
-  end
+  import Valet.Shared, only: [pre: 2, post: 3]
 
+  def validate(_, val, trail) when not is_binary(val), do: [TypeMismatch.new(trail, val, :binary)]
+  def validate(%Valet.Binary{min_len: min, max_len: max, regex: regex}=b, val, trail) do
+    val = pre(b, val)
+    post(b, val, sizes(min, max, val, trail) ++ regex(regex, val, trail))
+  end
   defp sizes(nil, nil, _, _), do: []
   defp sizes(min, nil, val, trail) when is_integer(min), do: at_least(min, val, trail)
   defp sizes(nil, max, val, trail) when is_integer(max), do: at_most(max, val, trail)

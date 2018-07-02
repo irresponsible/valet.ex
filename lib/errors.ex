@@ -1,10 +1,3 @@
-defmodule Valet.Error do
-  @enforce_keys [:trail, :value, :reason]
-  defstruct @enforce_keys
-  alias Valet.Error
-
-  def path(%Error{trail: trail}), do: Enum.reverse(trail)
-end
 defmodule Valet.Error.TypeMismatch do
   @enforce_keys [:trail, :value, :expected]
   defstruct @enforce_keys
@@ -102,3 +95,11 @@ defmodule Valet.Error.LengthNotBetween do
 
 end
 
+defmodule Valet.Error.Disunion do
+  @enforce_keys [:trail, :value, :errors]
+  defstruct @enforce_keys
+  
+  def new(trail, value, errors),
+    do: %__MODULE__{trail: trail, value: value, errors: errors}
+
+end

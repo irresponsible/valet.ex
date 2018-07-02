@@ -30,7 +30,8 @@ defmodule Valet.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:protocol_ex, "~> 0.3.0"},
+      # {:protocol_ex, "~> 0.3.0"},
+      {:protocol_ex, git: "https://github.com/OvermindDL1/protocol_ex", branch: "master", override: true},
       {:polylens, path: "../polylens"},
       {:dbg, "~> 1.0", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},

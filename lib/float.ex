@@ -1,5 +1,5 @@
 defmodule Valet.Float do
-  @enforce_keys [:min, :max]
+  @enforce_keys [:min, :max, :pre, :post]
   defstruct @enforce_keys
 end
 
@@ -9,9 +9,13 @@ alias Valet.Schema
 alias Valet.Error.{TypeMismatch, NotAtLeast, NotAtMost, NotBetween}
 
 defimpl_ex ValetFloat, %Valet.Float{}, for: Schema do
-  def validate(_, val, trail) when not is_float(val), do: [TypeMismatch.new(trail, val, :float)]
-  def validate(%Valet.Float{min: min, max: max}, val, trail), do: sizes(min, max, val, trail)
+  import Valet.Shared, only: [pre: 2, post: 3]
 
+  def validate(_, val, trail) when not is_float(val), do: [TypeMismatch.new(trail, val, :float)]
+  def validate(%Valet.Float{min: min, max: max}=f, val, trail) do
+    val = pre(f, val)
+    post(f, val, sizes(min, max, val, trail))
+  end
   defp sizes(nil, nil, _, _), do: []
   defp sizes(min, nil, val, trail) when is_number(min), do: at_least(min, val, trail)
   defp sizes(nil, max, val, trail) when is_number(max), do: at_most(max, val, trail)

@@ -1,5 +1,5 @@
 defmodule Valet.Number do
-  @enforce_keys [:min, :max]
+  @enforce_keys [:min, :max, :pre, :post]
   defstruct @enforce_keys
 end
 
@@ -8,8 +8,13 @@ alias Valet.Schema
 alias Valet.Error.{TypeMismatch, NotAtLeast, NotAtMost, NotBetween}
 
 defimpl_ex ValetNumber, %Valet.Number{}, for: Schema do
+  import Valet.Shared, only: [pre: 2, post: 3]
+
   def validate(_, val, trail) when not is_number(val), do: [TypeMismatch.new(trail, val, :number)]
-  def validate(%Valet.Number{min: min, max: max}, val, trail), do: sizes(min, max, val, trail)
+  def validate(%Valet.Number{min: min, max: max}=n, val, trail) do
+    val = pre(n, val)
+    post(n, val, sizes(min, max, val, trail))
+  end
 
   defp sizes(nil, nil, _, _), do: []
   defp sizes(min, nil, val, trail) when is_number(min), do: at_least(min, val, trail)

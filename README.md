@@ -4,24 +4,36 @@ Simple validation, great diagnostics
 
 ## Status
 
-So brand new it hurts.
+Beta quality. Bits are used in other applications
 
 ## Usage
 
 ```elixir
 alias Valet.Schema
 
+@doc "A schema that validates string keys and int values"
 def string_int_map() do
   Valet.map(key_schema: Valet.string(), val_schema: Valet.integer())
 end
 
 def main() do
-  [] = Schema.validate(string_int_map(), %{"a" => 1}) # no errors
-  for e <- Schema.validate(string_int_map(), %{1 => "a"}), # two errors
-    do: IO.inspect(e)
+  {:ok, %{"a" => 1}} = Schema.validate(string_int_map(), %{"a" => 1}) # no errors
+  with {:error, es} <- Schema.validate(string_int_map(), %{1 => "a"}) do # two errors
+    for e <- es, do: IO.inspect(e)
+  end
 end
 
 ```
+
+## Common Options
+
+- `:pre` - pre-validation transformation (1-arg fn)
+- `:post` - post-validation transformation (1-arg fn)
+
+## Todo
+
+- Finish property tests
+- Finish Documentation
 
 ## Installation
 

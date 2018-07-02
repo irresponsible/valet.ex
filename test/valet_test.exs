@@ -2,7 +2,7 @@ defmodule ValetTest do
   use ExUnit.Case
   use ExUnitProperties
   alias Valet.Schema
-  alias StreamData, as: SD
+  # alias StreamData, as: SD
   alias ValetTest.Gen
   alias Valet.Error.{
     NotAtLeast,       NotAtMost,       NotBetween,
@@ -22,6 +22,7 @@ defmodule ValetTest do
   doctest Valet.Choice
   doctest Valet.Union
 
+  # todo: test pre/post
   property "integer" do
     check all {lower, upper, toosmall, toobig, inrange} <- Gen.int_test() do
       min = Valet.integer(min: lower)
@@ -30,20 +31,21 @@ defmodule ValetTest do
       mins = [min, minmax]
       maxs = [max, minmax]
 
-      for m <- mins, do: assert [] === Schema.validate(m, inrange)
-      for m <- maxs, do: assert [] === Schema.validate(m, inrange)
+      for m <- mins, do: assert {:ok, inrange} === Schema.validate(m, inrange)
+      for m <- maxs, do: assert {:ok, inrange} === Schema.validate(m, inrange)
        
-      assert [NotAtLeast.new([], toosmall, lower)] === Schema.validate(min, toosmall)
-      assert [NotBetween.new([], toosmall, lower, upper)] === Schema.validate(minmax, toosmall)
+      assert {:error, [NotAtLeast.new([], toosmall, lower)]} === Schema.validate(min, toosmall)
+      assert {:error, [NotBetween.new([], toosmall, lower, upper)]} === Schema.validate(minmax, toosmall)
 
-      assert [NotAtMost.new([],  toobig, upper)] === Schema.validate(max, toobig)
-      assert [NotBetween.new([], toobig, lower, upper)] === Schema.validate(minmax, toobig)
+      assert {:error, [NotAtMost.new([],  toobig, upper)]} === Schema.validate(max, toobig)
+      assert {:error, [NotBetween.new([], toobig, lower, upper)]} === Schema.validate(minmax, toobig)
     end
   end
 
   # What is all this funky casting of integer about, you ask? perhaps
   # predictably, stream_data picked something that would overflow
   # fairly quickly with float()
+  # todo: test pre/post
   property "float" do
     check all {lower, upper, toosmall, toobig, inrange} <- Gen.float_test() do
 
@@ -53,17 +55,17 @@ defmodule ValetTest do
       mins = [min, minmax]
       maxs = [max, minmax]
 
-      for m <- mins, do: assert [] === Schema.validate(m, inrange)
-      for m <- maxs, do: assert [] === Schema.validate(m, inrange)
+      for m <- mins, do: assert {:ok, inrange} === Schema.validate(m, inrange)
+      for m <- maxs, do: assert {:ok, inrange} === Schema.validate(m, inrange)
        
-      assert [NotAtLeast.new([], toosmall, lower)] === Schema.validate(min, toosmall)
-      assert [NotBetween.new([], toosmall, lower, upper)] === Schema.validate(minmax, toosmall)
-
-      assert [NotAtMost.new([],  toobig, upper)] === Schema.validate(max, toobig)
-      assert [NotBetween.new([], toobig, lower, upper)] === Schema.validate(minmax, toobig)
+      assert {:error, [NotAtLeast.new([], toosmall, lower)]} === Schema.validate(min, toosmall)
+      assert {:error, [NotBetween.new([], toosmall, lower, upper)]} === Schema.validate(minmax, toosmall)
+      assert {:error, [NotAtMost.new([],  toobig, upper)]} === Schema.validate(max, toobig)
+      assert {:error, [NotBetween.new([], toobig, lower, upper)]} === Schema.validate(minmax, toobig)
     end
   end
 
+  # todo: test pre/post
   property "number - int" do
     check all {lower, upper, toosmall, toobig, inrange} <- Gen.int_test() do
 
@@ -73,17 +75,17 @@ defmodule ValetTest do
       mins = [min, minmax]
       maxs = [max, minmax]
 
-      for m <- mins, do: assert [] === Schema.validate(m, inrange)
-      for m <- maxs, do: assert [] === Schema.validate(m, inrange)
+      for m <- mins, do: assert {:ok, inrange} === Schema.validate(m, inrange)
+      for m <- maxs, do: assert {:ok, inrange} === Schema.validate(m, inrange)
        
-      assert [NotAtLeast.new([], toosmall, lower)] === Schema.validate(min, toosmall)
-      assert [NotBetween.new([], toosmall, lower, upper)] === Schema.validate(minmax, toosmall)
-
-      assert [NotAtMost.new([],  toobig, upper)] === Schema.validate(max, toobig)
-      assert [NotBetween.new([], toobig, lower, upper)] === Schema.validate(minmax, toobig)
+      assert {:error, [NotAtLeast.new([], toosmall, lower)]} === Schema.validate(min, toosmall)
+      assert {:error, [NotBetween.new([], toosmall, lower, upper)]} === Schema.validate(minmax, toosmall)
+      assert {:error, [NotAtMost.new([],  toobig, upper)]} === Schema.validate(max, toobig)
+      assert {:error, [NotBetween.new([], toobig, lower, upper)]} === Schema.validate(minmax, toobig)
     end
   end
 
+  # todo: test pre/post
   property "number - float" do
     check all {lower, upper, toosmall, toobig, inrange} <- Gen.float_test() do
 
@@ -93,17 +95,17 @@ defmodule ValetTest do
       mins = [min, minmax]
       maxs = [max, minmax]
 
-      for m <- mins, do: assert [] === Schema.validate(m, inrange)
-      for m <- maxs, do: assert [] === Schema.validate(m, inrange)
+      for m <- mins, do: assert {:ok, inrange} === Schema.validate(m, inrange)
+      for m <- maxs, do: assert {:ok, inrange} === Schema.validate(m, inrange)
        
-      assert [NotAtLeast.new([], toosmall, lower)] === Schema.validate(min, toosmall)
-      assert [NotBetween.new([], toosmall, lower, upper)] === Schema.validate(minmax, toosmall)
-
-      assert [NotAtMost.new([],  toobig, upper)] === Schema.validate(max, toobig)
-      assert [NotBetween.new([], toobig, lower, upper)] === Schema.validate(minmax, toobig)
+      assert {:error, [NotAtLeast.new([], toosmall, lower)]} === Schema.validate(min, toosmall)
+      assert {:error, [NotBetween.new([], toosmall, lower, upper)]} === Schema.validate(minmax, toosmall)
+      assert {:error, [NotAtMost.new([],  toobig, upper)]} === Schema.validate(max, toobig)
+      assert {:error, [NotBetween.new([], toobig, lower, upper)]} === Schema.validate(minmax, toobig)
     end
   end
 
+  # todo: test pre/post
   property "binary" do
     check all {lower, upper, toosmall, toobig, inrange} <- Gen.binary_test() do
       min = Valet.binary(min_len: lower)
@@ -112,17 +114,17 @@ defmodule ValetTest do
       mins = [min, minmax]
       maxs = [max, minmax]
 
-      for m <- mins, do: assert [] === Schema.validate(m, inrange)
-      for m <- maxs, do: assert [] === Schema.validate(m, inrange)
+      for m <- mins, do: assert {:ok, inrange} === Schema.validate(m, inrange)
+      for m <- maxs, do: assert {:ok, inrange} === Schema.validate(m, inrange)
        
-      assert [LengthNotAtLeast.new([], toosmall, lower)] === Schema.validate(min, toosmall)
-      assert [LengthNotBetween.new([], toosmall, lower, upper)] === Schema.validate(minmax, toosmall)
-
-      assert [LengthNotAtMost.new([],  toobig, upper)] === Schema.validate(max, toobig)
-      assert [LengthNotBetween.new([], toobig, lower, upper)] === Schema.validate(minmax, toobig)
+      assert {:error, [LengthNotAtLeast.new([], toosmall, lower)]} === Schema.validate(min, toosmall)
+      assert {:error, [LengthNotBetween.new([], toosmall, lower, upper)]} === Schema.validate(minmax, toosmall)
+      assert {:error, [LengthNotAtMost.new([],  toobig, upper)]} === Schema.validate(max, toobig)
+      assert {:error, [LengthNotBetween.new([], toobig, lower, upper)]} === Schema.validate(minmax, toobig)
     end
   end
 
+  # todo: test pre/post
   property "string" do
     check all {lower, upper, toosmall, toobig, inrange} <- Gen.string_test() do
       min = Valet.string(min_len: lower)
@@ -131,17 +133,17 @@ defmodule ValetTest do
       mins = [min, minmax]
       maxs = [max, minmax]
 
-      for m <- mins, do: assert [] === Schema.validate(m, inrange)
-      for m <- maxs, do: assert [] === Schema.validate(m, inrange)
+      for m <- mins, do: assert {:ok, inrange} === Schema.validate(m, inrange)
+      for m <- maxs, do: assert {:ok, inrange} === Schema.validate(m, inrange)
        
-      assert [LengthNotAtLeast.new([], toosmall, lower)] === Schema.validate(min, toosmall)
-      assert [LengthNotBetween.new([], toosmall, lower, upper)] === Schema.validate(minmax, toosmall)
-
-      assert [LengthNotAtMost.new([],  toobig, upper)] === Schema.validate(max, toobig)
-      assert [LengthNotBetween.new([], toobig, lower, upper)] === Schema.validate(minmax, toobig)
+      assert {:error, [LengthNotAtLeast.new([], toosmall, lower)]} === Schema.validate(min, toosmall)
+      assert {:error, [LengthNotBetween.new([], toosmall, lower, upper)]} === Schema.validate(minmax, toosmall)
+      assert {:error, [LengthNotAtMost.new([],  toobig, upper)]} === Schema.validate(max, toobig)
+      assert {:error, [LengthNotBetween.new([], toobig, lower, upper)]} === Schema.validate(minmax, toobig)
     end
   end
 
+  # todo: test pre/post
   # property "tuple" do
   #   check all lower <- SD.positive_integer(),
   #             count <- SD.positive_integer() do
@@ -150,6 +152,7 @@ defmodule ValetTest do
   # end
 
   # TODO: test schema works too
+  # todo: test pre/post
   property "list" do
     check all {lower, upper, toosmall, toobig, inrange} <- Gen.list_test() do
       min = Valet.list(min_len: lower)
@@ -158,18 +161,18 @@ defmodule ValetTest do
       mins = [min, minmax]
       maxs = [max, minmax]
 
-      for m <- mins, do: assert [] === Schema.validate(m, inrange)
-      for m <- maxs, do: assert [] === Schema.validate(m, inrange)
+      for m <- mins, do: assert {:ok, inrange} === Schema.validate(m, inrange)
+      for m <- maxs, do: assert {:ok, inrange} === Schema.validate(m, inrange)
        
-      assert [LengthNotAtLeast.new([], toosmall, lower)] === Schema.validate(min, toosmall)
-      assert [LengthNotBetween.new([], toosmall, lower, upper)] === Schema.validate(minmax, toosmall)
-
-      assert [LengthNotAtMost.new([],  toobig, upper)] === Schema.validate(max, toobig)
-      assert [LengthNotBetween.new([], toobig, lower, upper)] === Schema.validate(minmax, toobig)
+      assert {:error, [LengthNotAtLeast.new([], toosmall, lower)]} === Schema.validate(min, toosmall)
+      assert {:error, [LengthNotBetween.new([], toosmall, lower, upper)]} === Schema.validate(minmax, toosmall)
+      assert {:error, [LengthNotAtMost.new([],  toobig, upper)]} === Schema.validate(max, toobig)
+      assert {:error, [LengthNotBetween.new([], toobig, lower, upper)]} === Schema.validate(minmax, toobig)
     end
   end
 
   # TODO: test schemata work too
+  # todo: test pre/post
   property "map" do
     check all {lower, upper, toosmall, toobig, inrange} <- Gen.map_test() do
       min = Valet.map(min_len: lower)
@@ -178,21 +181,25 @@ defmodule ValetTest do
       mins = [min, minmax]
       maxs = [max, minmax]
 
-      for m <- mins, do: assert [] === Schema.validate(m, inrange)
-      for m <- maxs, do: assert [] === Schema.validate(m, inrange)
+      for m <- mins, do: assert {:ok, inrange} === Schema.validate(m, inrange)
+      for m <- maxs, do: assert {:ok, inrange} === Schema.validate(m, inrange)
        
-      assert [LengthNotAtLeast.new([], toosmall, lower)] === Schema.validate(min, toosmall)
-      assert [LengthNotBetween.new([], toosmall, lower, upper)] === Schema.validate(minmax, toosmall)
-
-      assert [LengthNotAtMost.new([],  toobig, upper)] === Schema.validate(max, toobig)
-      assert [LengthNotBetween.new([], toobig, lower, upper)] === Schema.validate(minmax, toobig)
+      assert {:error, [LengthNotAtLeast.new([], toosmall, lower)]} === Schema.validate(min, toosmall)
+      assert {:error, [LengthNotBetween.new([], toosmall, lower, upper)]} === Schema.validate(minmax, toosmall)
+      assert {:error, [LengthNotAtMost.new([],  toobig, upper)]} === Schema.validate(max, toobig)
+      assert {:error, [LengthNotBetween.new([], toobig, lower, upper)]} === Schema.validate(minmax, toobig)
     end
   end
 
+  # todo: test pre/post
   # property "every" do
   # end
+
+  # todo: test pre/post
   # property "choice" do
   # end
+
+  # todo: test pre/post
   # property "union" do
   # end
 
