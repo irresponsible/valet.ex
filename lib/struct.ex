@@ -9,20 +9,36 @@ alias Polylens.Lenses
 alias Valet.Error.{KeyIsMissing, KeysUnknown, TypeMismatch}
 
 defimpl_ex ValetStruct, %Valet.Struct{}, for: Schema do
-  import Valet.Shared, only: [post: 3]
+  import Valet.Shared, only: [pre: 2, post: 3]
 
   def validate(_, val, trail) when not(is_map(val)), do: [TypeMismatch.new(trail, val, :map)]
   def validate(%Valet.Struct{required: required, optional: optional, extra: extra}=s, val, trail) do
-    ret = required(required, val, trail)
-    ++ optional(optional, val, trail)
-    ++ extra(required, optional, extra, val, trail)
-    post(s, val, ret)
+    val = pre(s, val)
+    extra = extra(required, optional, extra, val, trail)
+    case required(required, val, trail) do
+      {:ok, val} ->
+	case optional(optional, val, trail) do
+	  {:ok, val} -> post(s, val, extra)
+	  {:error, errs} -> {:error, errs ++ extra}
+	end
+      {:error, errs} ->
+	case optional(optional, val, trail) do
+	  {:ok, _} -> {:error, errs ++ extra}
+	  {:error, errs2} -> {:error, errs ++ errs2 ++ extra}
+	end
+    end
   end
 
   defp extra(required, optional, extra, val, trail)
   defp extra(_, _, true, _, _), do: []
   defp extra(required, optional, _, val, trail) do
-    known = MapSet.new(required ++ optional, &Map.keys/1)
+    keys = case {required, optional} do
+      {nil, nil} -> []
+      {%{}, nil} -> Map.keys(required)
+      {nil, %{}} -> Map.keys(optional)
+      {%{},%{}} -> Map.keys(required) ++ Map.keys(optional)
+    end
+    known = MapSet.new(keys)
     provided = MapSet.new(Map.keys(val))
     unknown = MapSet.difference(provided, known)
     if Enum.empty?(unknown),
@@ -30,22 +46,40 @@ defimpl_ex ValetStruct, %Valet.Struct{}, for: Schema do
       else: [KeysUnknown.new(trail, val, MapSet.to_list(unknown), MapSet.to_list(known))]
   end
 
-  defp required(nil, _, _), do: []
+  defp required(nil, val, _), do: {:ok, val}
   defp required(required, val, trail) do
-    Enum.flat_map(required, fn {key, s} ->
-      if Map.has_key?(val, key),
-        do: Schema.validate(s, val[key], [Lenses.at_key(key) | trail]),
-        else: [KeyIsMissing.new([Lenses.key_at(key) | trail], val, key, s)]
+    {ret, errs} = Enum.reduce(required, {val,[]}, fn {key,schema}, {vals, errs} ->
+      if Map.has_key?(val, key) do
+	case Schema.validate(schema, val[key], [Lenses.at_key(key) | trail]) do
+	  {:ok, val} -> {Map.put(vals, key, val), errs}
+	  {:error, es} -> {%{}, es ++ errs}
+	end
+      else
+	{%{}, [KeyIsMissing.new([Lenses.key_at(key) | trail], val, key, schema)] ++ errs}
+      end
     end)
+    case errs do
+      [] -> {:ok, ret}
+      _ -> {:error, errs}
+    end
   end
 
-  defp optional(nil, _, _), do: []
+  defp optional(nil, val, _), do: {:ok, val}
   defp optional(optional, val, trail) do
-    Enum.flat_map(optional, fn {key, s} ->
-      if Map.has_key?(val, key),
-        do: Schema.validate(s, val[key], [Lenses.at_key(key) | trail]),
-        else: []
+    {ret, errs} = Enum.reduce(optional, {val,[]}, fn {key,schema}, {vals, errs} ->
+      if Map.has_key?(val, key) do
+	case Schema.validate(schema, val[key], [Lenses.at_key(key) | trail]) do
+	  {:ok, val} -> {Map.put(vals, key, val), errs}
+	  {:error, es} -> {%{}, es ++ errs}
+	end
+      else
+	{Map.put(vals, key, val[key]), errs}
+      end
     end)
+    case errs do
+      [] -> {:ok, ret}
+      _ -> {:error, errs}
+    end
   end
 
 end

@@ -137,8 +137,6 @@ defmodule Valet do
     post = opts[:post]
     true = is_integer(min_len) or is_nil(min_len)
     true = is_integer(max_len) or is_nil(max_len)
-    true = is_nil(key_schema) or is_function(key_schema, 2)
-    true = is_nil(val_schema) or is_function(val_schema, 2)
     true = is_function(pre, 1) or is_nil(pre)
     true = is_function(post, 1) or is_nil(post)
     extra_keys([:min_len, :max_len, :key_schema, :val_schema, :pre, :post], opts)
@@ -180,7 +178,7 @@ defmodule Valet do
   @doc """
   Passes with the first branch that passes
   """
-  def union(branches, opts) do
+  def union(branches, opts \\ []) do
     pre = opts[:pre]
     post = opts[:post]
     true = is_function(pre, 1) or is_nil(pre)
@@ -193,7 +191,7 @@ defmodule Valet do
   @doc """
   Passes when a value is an item in the given enumerable
   """
-  def choice(choices, opts) when is_list(choices) do
+  def choice(choices, opts \\ []) when is_list(choices) do
     pre = opts[:pre]
     post = opts[:post]
     true = is_function(pre, 1) or is_nil(pre)

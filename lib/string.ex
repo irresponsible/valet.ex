@@ -25,7 +25,7 @@ defimpl_ex ValetString, %Valet.String{}, for: Schema do
   defp regex(%Regex{source: source}=regex, val, trail) do
     if val =~ regex,
       do: [],
-      else: [RegexDoesNotMatch.new(trail, val, source)]
+      else: [ RegexDoesNotMatch.new(trail, val, source) ]
   end
 
   defp at_least(min, val, trail) do

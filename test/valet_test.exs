@@ -188,6 +188,22 @@ defmodule ValetTest do
       assert {:error, [LengthNotBetween.new([], toosmall, lower, upper)]} === Schema.validate(minmax, toosmall)
       assert {:error, [LengthNotAtMost.new([],  toobig, upper)]} === Schema.validate(max, toobig)
       assert {:error, [LengthNotBetween.new([], toobig, lower, upper)]} === Schema.validate(minmax, toobig)
+
+      # Now do it again with schemata
+      min = Valet.map(min_len: lower, key_schema: Valet.binary(), val_schema: Valet.integer())
+      max = Valet.map(max_len: upper, key_schema: Valet.binary(), val_schema: Valet.integer())
+      minmax = Valet.map(min_len: lower, max_len: upper, key_schema: Valet.binary(), val_schema: Valet.integer())
+      mins = [min, minmax]
+      maxs = [max, minmax]
+
+      for m <- mins, do: assert {:ok, inrange} === Schema.validate(m, inrange)
+      for m <- maxs, do: assert {:ok, inrange} === Schema.validate(m, inrange)
+       
+      assert {:error, [LengthNotAtLeast.new([], toosmall, lower)]} === Schema.validate(min, toosmall)
+      assert {:error, [LengthNotBetween.new([], toosmall, lower, upper)]} === Schema.validate(minmax, toosmall)
+      assert {:error, [LengthNotAtMost.new([],  toobig, upper)]} === Schema.validate(max, toobig)
+      assert {:error, [LengthNotBetween.new([], toobig, lower, upper)]} === Schema.validate(minmax, toobig)
+
     end
   end
 

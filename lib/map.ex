@@ -52,10 +52,8 @@ defimpl_ex ValetMap, %Valet.Map{}, for: Schema do
       [] -> {:ok, vals}
       _ -> {:error, errs}
     end
-    Enum.flat_map(val, fn {k,v} -> Schema.validate(vs, v, [Lenses.at_key(k)| trail]) end)
   end
-
-  defp schema(schema, val, trail) do
+  defp schemata(ks, vs, val, trail) do
     {vals, errs} = Enum.reduce(val, {%{},[]}, fn {k, v}, {vals,errs} ->
       lk = Lenses.key_at(k)
       lv = Lenses.at_key(k)
@@ -63,9 +61,9 @@ defimpl_ex ValetMap, %Valet.Map{}, for: Schema do
       rv = Schema.validate(vs, v, [lv | trail])
       case {rk,rv} do
 	{{:ok,k},{:ok,v}} -> {Map.put(vals, k, v), errs}
-	{{:ok,k},{:error,v}} -> {[], v ++ errs}
-	{{:error,k},{:ok,v}} -> {[], k ++ errs}
-	{{:error,k},{:error,v}} -> {[], k ++ v ++ errs}
+	{{:ok,_},{:error,v}} -> {%{}, v ++ errs}
+	{{:error,k},{:ok,_}} -> {%{}, k ++ errs}
+	{{:error,k},{:error,v}} -> {%{}, k ++ v ++ errs}
       end
     end)
     case errs do

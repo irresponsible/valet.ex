@@ -88,4 +88,15 @@ defmodule ValetTest.Gen do
             inrange  <- SD.map_of(SD.binary(), SD.integer(), min_length: lower, max_length: upper),
       do: {lower, upper, toosmall, toobig, inrange}
   end
+
+  def map_test2 do
+    gen all lower <- SD.positive_integer(), # positive means we can always take 1 off it
+            count <- SD.positive_integer(),
+            upper = lower + count,
+            toosmall <- SD.map_of(SD.binary(), SD.integer(), max_length: lower - 1),
+            toobig   <- SD.map_of(SD.binary(), SD.integer(), min_length: upper + 1),
+            inrange  <- SD.map_of(SD.binary(), SD.integer(), min_length: lower, max_length: upper) do
+      {lower, upper, toosmall, toobig, inrange}
+    end
+  end
 end

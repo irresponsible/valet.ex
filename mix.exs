@@ -36,6 +36,7 @@ defmodule Valet.MixProject do
       {:dbg, "~> 1.0", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:stream_data, "~> 0.4", only: [:dev, :test]},
+      {:benchee, "~> 0.13", only: [:dev, :test]},
     ]
   end
 end

@@ -29,7 +29,7 @@ defimpl_ex ValetList, %Valet.List{}, for: Schema do
 
   defp schema(nil, val, _), do: {:ok, val}
   defp schema(schema, val, trail) do
-    {vals, errs} = Enum.reduce(val, {[],[]}, fn {val, index}, {vals,errs} ->
+    {vals, errs} = Enum.reduce(Enum.with_index(val), {[],[]}, fn {val, index}, {vals,errs} ->
       case Schema.validate(schema, val, [Lenses.at_index(index) | trail]) do
 	{:ok, v} -> {[v | vals], errs}
 	{:error, es} -> {[], es ++ errs}
