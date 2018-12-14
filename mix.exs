@@ -32,7 +32,7 @@ defmodule Valet.MixProject do
     [
       # {:protocol_ex, "~> 0.3.0"},
       {:protocol_ex, git: "https://github.com/OvermindDL1/protocol_ex", branch: "master", override: true},
-      {:polylens, path: "../polylens"},
+      {:polylens, git: "https://github.com/irresponsible/polylens.ex"},
       {:dbg, "~> 1.0", only: [:dev, :test]},
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:stream_data, "~> 0.4", only: [:dev, :test]},
